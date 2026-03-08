@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultimate Auto-Clicker</title>
+    <style>
+        body { background: #000; color: #fff; font-family: "Courier New", monospace; text-align: center; padding: 20px; }
+        .window { border: 4px solid #fff; padding: 20px; display: inline-block; background: #000; box-shadow: 10px 10px 0px #888; }
+        input, select { background: #000; color: #fff; border: 1px solid #fff; padding: 5px; margin: 10px; width: 80%; }
+        .btn { background: #fff; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; margin: 10px; }
+        .btn:hover { background: #888; }
+        iframe { width: 90%; height: 500px; border: 4px solid #fff; margin-top: 20px; background: white; }
+    </style>
+</head>
+<body>
+
+<div class="window">
+    <h1>CLICKER TOOL</h1>
+    <p>Auto Clicker</p>
+    
+    <!-- Bookmarklet Section -->
+    <p>Drag this to your bookmarks bar to use on ANY site:</p>
+    <a class="btn" id="bookmarkletLink">Autoclicker</a>
+
+    <hr>
+
+    <!-- Website Loader Section -->
+    <p>Or load a website here to test (Note: some sites block loading in frames):</p>
+    <input type="text" id="siteUrl" placeholder="https://www.google.com">
+    <button class="btn" onclick="loadSite()">LOAD WEBSITE</button>
+</div>
+
+<br>
+<iframe id="testFrame" src="about:blank"></iframe>
+
+<script>
+    // THE CORE JAVASCRIPT LOGIC (Miniaturized for bookmarklet)
+    const scriptCode = `(function(){
+        if(document.getElementById('ac_menu')) return;
+        const s = document.createElement('style');
+        s.innerHTML = '#ac_menu{position:fixed;top:10px;right:10px;width:180px;background:#000;color:#fff;border:3px solid #fff;padding:10px;z-index:999999;font-family:monospace;text-align:center;} .ac_orb{width:30px;height:30px;background:radial-gradient(circle,#fff,#000);border:2px solid #fff;border-radius:50%;position:fixed;top:50%;left:50%;z-index:999999;cursor:move;touch-action:none;display:none;box-shadow:0 0 10px #fff;} .ac_btn{background:#fff;color:#000;width:100%;margin:5px 0;padding:5px;font-weight:bold;cursor:pointer;border:none;}';
+        document.head.appendChild(s);
+        const m = document.createElement('div'); m.id='ac_menu';
+        m.innerHTML = '<b>CLICKER</b><br>ms:<input id="ac_ms" type="number" value="1" style="width:50px;background:#000;color:#fff;border:1px solid #fff"><br><button class="ac_btn" id="ac_spw">SELECT</button><button class="ac_btn" id="ac_go">START</button><button class="ac_btn" id="ac_stop" style="background:#555;color:#fff">STOP</button>';
+        document.body.appendChild(m);
+        const o = document.createElement('div'); o.className='ac_orb'; document.body.appendChild(o);
+        let clk = null;
+        function drag(e){
+            let t = e.touches ? e.touches[0] : e;
+            o.style.left = (t.clientX - 15) + 'px'; o.style.top = (t.clientY - 15) + 'px';
+        }
+        o.onmousedown = o.ontouchstart = () => { document.onmousemove = document.ontouchmove = drag; };
+        document.onmouseup = document.ontouchend = () => { document.onmousemove = document.ontouchmove = null; };
+        document.getElementById('ac_spw').onclick = () => o.style.display = 'block';
+        document.getElementById('ac_stop').onclick = () => { clearInterval(clk); clk = null; };
+        document.getElementById('ac_go').onclick = () => {
+            if(clk) return;
+            const ms = parseInt(document.getElementById('ac_ms').value) || 1;
+            clk = setInterval(() => {
+                o.style.pointerEvents = 'none';
+                const el = document.elementFromPoint(parseInt(o.style.left)+15, parseInt(o.style.top)+15);
+                if(el) el.click();
+                o.style.pointerEvents = 'auto';
+            }, ms);
+        };
+    })()`;
+
+    // Set the Bookmarklet Link
+    document.getElementById('bookmarkletLink').href = "javascript:" + encodeURIComponent(scriptCode);
+
+    // Function to load website into iframe
+    function loadSite() {
+        let url = document.getElementById('siteUrl').value;
+        if (!url.startsWith('http')) url = 'https://' + url;
+        document.getElementById('testFrame').src = url;
+        // Run the script on the main page so user can test the UI immediately
+        eval(scriptCode);
+    }
+
+    // Auto-run the script on this page for immediate use
+    eval(scriptCode);
+</script>
+
+</body>
+</html>
